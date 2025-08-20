@@ -1,0 +1,58 @@
+---
+title: "worst graph ever"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(patchwork)
+library(paletteer)
+library(lubridate)
+
+space <- read_csv(here::here("data", "space_launches.csv"))
+
+gorg <- ggplot(space, aes(x = launch_date, y = mission, color = state_code))+
+  geom_jitter()+
+  labs(title = "Very Information", x = "yes", y = "Z̷̡̯͕̙͚̮̜̥͈̹͔̳̻̆͐ͪ̊̋̉̓̊ͤ̇́ͩ̕͘͘͠a͈̤̦͓̘̙̭̙̝͉̤͈̓̎̉͊ͪͩ͒̅́̈́͊̓ͪ́̔ͨ͡͝͡͝ļ̸̧͎͕̦͈̖̰̜̺͖͈̹̤̹̹̲͋͂ͧͯ̒ͧ̀͑̓̒̽͐̀ͨ̆̑ͪ̃ͬ͛̌̕͟ͅg̸̡̱̱̪̩̪͕̒͂͊̏͒̓̉̍̋̍́ͩ̓̈̾ͤ͘͢͡͠͝ͅo̶̢̮͈͖̥͙͍̬͚̥̘̳̪ͥ̾̀ͣͪ̄̀̍̽͛ͭ͊̍͑ͣ́̔͌̇ͯ͘̕͟͝ L̵̛̮̟̣̬̬̣͒̽̐̽͒ͬ̓͛̆́͟͟͝͞͝ͅͅe̷̵̠̟͉̅ͬ͋̈͐́͒́͘͡͡_̸̥̬̪̩̻̗̮͌̊ͦ̐̕͟͝v̴̛̟̱̹̳͓̳̣̞͉̣̣̟̼̟̹̗̒ͥ̓̌͆ͥ́̓͂̓̍̇̑̍͘͟͝͠ͅe̸̷̷̷̢̢̤͉͈̳͖͚̯̘̬͙͈̼ͫ̒̀̈̅͆͐̒̄̄ͨ́̔̋ͬ̀ͩ͆͗̔͂͌̽́̈̄ͨ͡ͅl̘͎̯͚͙̇ͣ̈́̅̑͡ T̴̶͈̹͕̙͎ͯ̓̀̈́͑͂̒ͬͧ́̿ͯ̕ͅͅw̸̰͓͚͈̝͓̹̯̋̈́͌ͮ̄͟_̼ͭ͑̄e̷̵̵̡̨̢̝̗̝̠̲ͤ̔̌ͩ̀͐ͤͥ̄ͥͨ͢lv̧̻̹̣̻̔ͧ͐͊ͮ͐͠ȩ̶̧͎̩̞̱̟͈͎̯̐͌̿͊̈ͥ͂ͧ̄͒͘͟͟͡")+
+  theme(panel.background = element_rect(color = "green3", size = 3, fill = "yellow"),
+        panel.grid.major.y = element_line(color = "red"),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(color = "blue"),
+        axis.text.y = element_text(color = "cyan"),
+        axis.title.x = element_text(color = "brown"),
+        axis.title.y = element_text(color = "black"),
+        text = element_text(size = 12, family="serif"),
+        plot.background = element_rect(fill = "pink"))
+ggsave("very_pretty_plot.jpg", gorg)
+```
+```{r}
+sf_greenhouse <- read_csv(here::here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv"))
+
+sf_greenhouse |> group_by(Sector_General) |>
+  summarise(total_emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+
+sf_greenhouse |> group_by(Calendar_Year, Commodity_Type) |>
+  summarise(total_emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+  
+sf_subset <- sf_greenhouse |>
+  filter(Calendar_Year >= "2005") |>
+  filter(str_detect(Sector_Detail2, pattern = "PG&E"))|>
+  select(Calendar_Year, Sector_Detail2, Emissions_mtCO2e, Commodity_Type)|>
+  separate(Sector_Detail2, into = c("Company", "Sector"), sep = " ")|>
+  group_by(Calendar_Year, Sector, Commodity_Type)|>
+  summarise(emissions_summary = sum(Emissions_mtCO2e))
+  
+sf_emissions_plot <- ggplot(sf_subset, aes(x = Calendar_Year, y = emissions_summary, fill = Sector))+
+  geom_col(position = "stack")+
+  facet_grid(~Commodity_Type)+
+  labs(title = "San Francisco Emissions by Sector (2005-2020)", 
+       x = "Year", 
+       y = "Total emissions (million tonnes CO2)")+
+  theme_minimal()+
+    theme(panel.spacing.x = unit(1, "cm", data = NULL)) +
+  scale_fill_paletteer_d("fishualize::Clepticus_parrae")
+ggsave("emissions_plot.jpg", sf_emissions_plot)
+```
